@@ -8,6 +8,7 @@ import { useState, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar/navbar";
 import Footer from "@/components/footer/footer";
+import AlertBox from "@/components/alertBox/alertBox";
 import { LoginInterface } from "@/components/interfaces/loginInterface";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 
@@ -43,9 +44,38 @@ const Login = () => {
     };
 
     // Handle Form Submission
-    const handleSignIn = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
+        // Preventing the default behavior of the form submission
         e.preventDefault();
         setError("");
+
+        // Checking the email input form 
+        if (!credentials.email) {
+            // Displaying the alert box 
+            setAlert({
+                show: true,
+                message: "Please enter your email address.",
+                type: "error"
+            });
+            return;
+        }
+
+        // Checking the password input form 
+        else if (!credentials.password) {
+            // Displaying the alert box 
+            setAlert({
+                show: true,
+                message: "Please enter your password.",
+                type: "error"
+            });
+            return;
+        }
+
+        // Else if the email and password input forms are filled, send the request to the backend server 
+        else {
+            setIsLoading(true);
+            // Stringifying the credentials
+        }
     };
 
     // Rendering the login component 
@@ -53,6 +83,16 @@ const Login = () => {
         <Fragment>
             {/* Adding the navbar component */}
             <Navbar />
+
+            {/* Custom Alert Box */}
+            {alertDisplay.show && (
+                <AlertBox
+                    show={alertDisplay.show}
+                    message={alertDisplay.message}
+                    type={alertDisplay.type}
+                    setAlert={setAlert}
+                />
+            )}
 
             <div className="min-h-screen bg-slate-950 text-slate-100 antialiased flex flex-col justify-center relative overflow-hidden selection:bg-indigo-500/30">
                 <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 relative z-10">
@@ -77,7 +117,7 @@ const Login = () => {
                             </div>
                         )}
 
-                        <form onSubmit={handleSignIn} className="space-y-5">
+                        <form className="space-y-5">
                             {/* Email Address Input */}
                             <div>
                                 <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
@@ -90,10 +130,11 @@ const Login = () => {
                                     <input
                                         id="email"
                                         type="email"
+                                        name="email"
                                         autoComplete="email"
                                         required
-                                        // value={credentials.email}
-                                        // onChange={(e) => setLoginData({...credentials, email: e.target.value})}
+                                        value={credentials.email}
+                                        onChange={handleChange}
                                         placeholder="name@example.com"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                                     />
@@ -118,8 +159,9 @@ const Login = () => {
                                         id="password"
                                         type={showPassword ? "text" : "password"}
                                         required
-                                        // value={credentials.password}
-                                        // onChange={(e) => setLoginData({...credentials, password: e.target.value})}
+                                        name="password"
+                                        value={credentials.password}
+                                        onChange={handleChange}
                                         placeholder="••••••••"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                                     />
@@ -149,6 +191,7 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
+                                onClick={handleLogin}
                                 className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2 group text-sm"
                             >
                                 {isLoading ? (
