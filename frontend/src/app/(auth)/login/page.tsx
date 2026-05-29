@@ -44,7 +44,6 @@ const Login = () => {
             {/* Adding the navbar component */}
             <Navbar />
 
-
             <div className="min-h-screen bg-slate-950 text-slate-100 antialiased flex flex-col justify-center relative overflow-hidden selection:bg-indigo-500/30">
                 <div className="sm:mx-auto sm:w-full sm:max-w-md px-4 relative z-10">
                     <h2 className="text-center text-2xl sm:text-3xl font-extrabold tracking-tight text-white">

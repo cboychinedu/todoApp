@@ -1,9 +1,12 @@
+// using client 
 "use client";
 
+// Importing the necessary modules 
 import { useState, Fragment } from "react";
 import Link from "next/link";
 import Navbar from "@/components/navbar/navbar";
 import Footer from "@/components/footer/footer";
+import AlertBox from "@/components/alertBox/alertBox";
 import { Eye, EyeOff, Lock, Mail, User, ArrowRight } from "lucide-react";
 
 // Creating the register component 
@@ -15,6 +18,13 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    // Setting the alert state 
+    const [alertDisplay, setAlert] = useState({
+        show: false,
+        message: "",
+        type: "",
+    });
 
     // Handle Form Submission
     const handleRegister = async (e: React.FormEvent) => {
@@ -37,7 +47,11 @@ const Register = () => {
         setTimeout(() => {
             setIsLoading(false);
             // Logic for redirecting or saving state goes here
-            alert("Registration successful! (Demo state achieved)");
+            setAlert({
+                show: true,
+                message: "Registration successful!",
+                type: "error"
+            });
         }, 1500);
     };
 
@@ -46,6 +60,16 @@ const Register = () => {
         <Fragment>
             {/* Adding the navbar component */}
             <Navbar />
+
+            {/* Custom Alert Box */}
+            {alertDisplay.show && (
+                <AlertBox
+                    show={alertDisplay.show}
+                    message={alertDisplay.message}
+                    type={alertDisplay.type}
+                    setAlert={setAlert}
+                />
+            )}
 
             <div className="bg-slate-950 text-slate-100 antialiased flex flex-col justify-center relative overflow-hidden selection:bg-indigo-500/30 pt-28 pb-30">
                 {/* Decorative Radial Background Light */}
