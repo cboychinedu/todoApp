@@ -22,7 +22,20 @@ export class AuthService {
      */
     async register(registerDto: RegisterDto) {
         // Getting the registration details from the registerDto object 
-        const { name, email, password } = registerDto;
+        const { name, email, terms, password } = registerDto;
+
+        // Checking the terms and conditions 
+        if (!terms) {
+            // Building the response message 
+            const responseMessage = {
+                message: 'You must accept the terms and conditions to register.',
+                statusCode: 400,
+                status: "error"
+            }
+
+            // Sending the response message 
+            return responseMessage;
+        }
 
         // Checking if the user exists on the mongodb database 
         const user = await this.userModel.findOne({ email });

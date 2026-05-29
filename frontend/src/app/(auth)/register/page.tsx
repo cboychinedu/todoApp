@@ -8,13 +8,20 @@ import Navbar from "@/components/navbar/navbar";
 import Footer from "@/components/footer/footer";
 import AlertBox from "@/components/alertBox/alertBox";
 import { Eye, EyeOff, Lock, Mail, User, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Creating the register component 
 const Register = () => {
-    // Form State
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    // Creating the router instance for navigation 
+    const router = useRouter();
+
+    // Setting the necessary credentials for the registration form
+    const [credentials, setCredentials] = useState({
+        name: "",
+        email: "",
+        password: "",
+        terms: false,
+    });
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -26,33 +33,175 @@ const Register = () => {
         type: "",
     });
 
+    // Creating a function to handle the change on input forms 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCredentials({
+            ...credentials,
+            [e.target.name]: e.target.value,
+        });
+    };
+
     // Handle Form Submission
     const handleRegister = async (e: React.FormEvent) => {
+        // Preventing default submission behavior and resetting error state
         e.preventDefault();
         setError("");
 
-        // Basic Client-side Validation
-        if (!name || !email || !password) {
-            setError("Please fill out all fields.");
-            return;
-        }
-        if (password.length < 6) {
-            setError("Password must be at least 6 characters long.");
-            return;
-        }
-
-        setIsLoading(true);
-
-        // Simulate backend API request delay
-        setTimeout(() => {
-            setIsLoading(false);
-            // Logic for redirecting or saving state goes here
+        // Checking the name input form 
+        if (credentials.name.trim() === "") {
+            // Displaying the error message 
             setAlert({
                 show: true,
-                message: "Registration successful!",
+                message: "Please enter your full name.",
                 type: "error"
             });
-        }, 1500);
+
+            // Pausing the default submission behavior and returning early
+            return;
+        }
+
+        // Checking the email input form 
+        else if (credentials.email.trim() === "") {
+            // Displaying the error message 
+            setAlert({
+                show: true,
+                message: "Please enter your email address.",
+                type: "error"
+            });
+
+            // Pausing the default submission behavior and returning early
+            return;
+        }
+
+        // Checking the password input form 
+        else if (credentials.password.trim() === "") {
+            // Displaying the error message 
+            setAlert({
+                show: true,
+                message: "Please enter your password.",
+                type: "error"
+            });
+
+            // Pausing the default submission behavior and returning early
+            return;
+        }
+
+        // Checking the terms and conditions checkbox
+        else if (!credentials.terms) {
+            // Displaying the error message 
+            setAlert({
+                show: true,
+                message: "Please agree to the terms and conditions.",
+                type: "error"
+            });
+
+            // Pausing the default submission behavior and returning early
+            return;
+        }
+
+        // Else if all validations pass, execute the block of code below 
+        else {
+            // Setting the loading 
+            setIsLoading(true);
+
+            // Getting the registration data from the credentials state 
+            const registrationData = JSON.stringify(credentials);
+
+            // Getting the server url 
+            const serverUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/home/register`;
+
+            // Using try catch block to send the request to the backend server 
+            try {
+                // Making the POST request to the backend server
+                const response = await fetch(serverUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: registrationData,
+                });
+
+                // If the response is not ok, display the error message 
+                if (!response.ok) {
+                    // Convert the response to json and get the error message from the backend server
+                    const errorData = await response.json();
+
+                    // Displaying the error message 
+                    setAlert({
+                        show: true,
+                        message: errorData.message || "Registration failed. Please try again.",
+                        type: "error"
+                    });
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Else if the response data status was successful, display the success message
+                else {
+                    // Convert the response to json and get the success message from the backend server
+                    const successData = await response.json();
+
+                    // if the user was registred, execute the block of code below 
+                    if (successData.status === "success") {
+                        // Displaying the success message 
+                        setAlert({
+                            show: true,
+                            message: successData.message || "Registration successful!",
+                            type: "success"
+                        });
+
+                        // Resetting the credentials state to clear the form
+                        setCredentials({
+                            name: "",
+                            email: "",
+                            password: "",
+                            terms: false,
+                        });
+
+                        // Auto hide, and navigate the user to the login page 
+                        setTimeout(() => { setAlert({ show: false, message: "", type: "" }); router.push("/login") }, 6000)
+                    }
+
+                    // if the user was not registred, execute the block of code below 
+                    else {
+                        // Displaying the error message 
+                        setAlert({
+                            show: true,
+                            message: successData.message || "Registration failed. Please try again.",
+                            type: "error"
+                        });
+
+                        // Auto hide the error after 7 seconds 
+                        setTimeout(() => setAlert({ show: false, message: "", type: "" }), 7000);
+
+                        // 
+                        setIsLoading(false);
+
+                        // Pause submission 
+                        return;
+                    }
+                }
+            }
+
+            // Catch the error 
+            catch (error: any) {
+                // Setting the loading as false 
+                setIsLoading(false);
+
+                // Displaying the error message 
+                setAlert({
+                    show: true,
+                    message: error.message || "An unexpected error occurred. Please try again.",
+                    type: "error"
+                });
+
+                // Auto hide the error after 7 seconds 
+                setTimeout(() => setAlert({ show: false, message: "", type: "" }), 7000);
+
+                // Pause submission 
+                return;
+            }
+        }
     };
 
     // Rendering the jsx component
@@ -97,7 +246,7 @@ const Register = () => {
                             </div>
                         )}
 
-                        <form onSubmit={handleRegister} className="space-y-5">
+                        <form className="space-y-5">
                             {/* Full Name Input */}
                             <div>
                                 <label htmlFor="name" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
@@ -111,8 +260,9 @@ const Register = () => {
                                         id="name"
                                         type="text"
                                         required
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
+                                        name="name"
+                                        value={credentials.name}
+                                        onChange={handleChange}
                                         placeholder="Alex Mercer"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                                     />
@@ -131,10 +281,11 @@ const Register = () => {
                                     <input
                                         id="email"
                                         type="email"
+                                        name="email"
                                         autoComplete="email"
                                         required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        value={credentials.email}
+                                        onChange={handleChange}
                                         placeholder="name@example.com"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                                     />
@@ -153,9 +304,10 @@ const Register = () => {
                                     <input
                                         id="password"
                                         type={showPassword ? "text" : "password"}
+                                        name="password"
                                         required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        value={credentials.password}
+                                        onChange={handleChange}
                                         placeholder="••••••••"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                                     />
@@ -175,6 +327,9 @@ const Register = () => {
                                     <input
                                         id="terms"
                                         type="checkbox"
+                                        name="terms"
+                                        checked={credentials.terms}
+                                        onChange={(e) => setCredentials({ ...credentials, terms: e.target.checked })}
                                         required
                                         className="h-4 w-4 rounded border-slate-800 bg-slate-950 text-indigo-600 focus:ring-indigo-500/40 focus:ring-offset-slate-950"
                                     />
@@ -193,6 +348,7 @@ const Register = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
+                                onClick={handleRegister}
                                 className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2 group text-sm"
                             >
                                 {isLoading ? (

@@ -2,40 +2,50 @@
 "use client";
 
 // Importing the necessary modules 
-import { useState, Fragment } from "react";
 import Link from "next/link";
+import Cookies from "js-cookie";
+import { useState, Fragment } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar/navbar";
 import Footer from "@/components/footer/footer";
+import { LoginInterface } from "@/components/interfaces/loginInterface";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 
 // Creating the Login component
 const Login = () => {
-    // Form State
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    // Setting the router 
+    const router = useRouter();
+
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    // Setting the alert state 
+    const [alertDisplay, setAlert] = useState({
+        show: false,
+        message: "",
+        type: ""
+    })
+
+    // Form State
+    const [credentials, setCredentials] = useState<LoginInterface>({
+        email: "",
+        password: ""
+    });
+
+    // Creating a function for handling the change on input forms 
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        // Setting the credentials 
+        setCredentials({
+            ...credentials,
+            [event.target.name]: event.target.value
+        });
+    };
 
     // Handle Form Submission
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
-
-        // Basic Client-side Validation
-        if (!email || !password) {
-            setError("Please fill out all fields.");
-            return;
-        }
-
-        setIsLoading(true);
-
-        // Simulate backend API authentication delay
-        setTimeout(() => {
-            setIsLoading(false);
-            // Logic for logging in or redirecting goes here
-            alert("Sign in successful! (Demo state achieved)");
-        }, 1500);
     };
 
     // Rendering the login component 
@@ -82,8 +92,8 @@ const Login = () => {
                                         type="email"
                                         autoComplete="email"
                                         required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        // value={credentials.email}
+                                        // onChange={(e) => setLoginData({...credentials, email: e.target.value})}
                                         placeholder="name@example.com"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                                     />
@@ -108,8 +118,8 @@ const Login = () => {
                                         id="password"
                                         type={showPassword ? "text" : "password"}
                                         required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        // value={credentials.password}
+                                        // onChange={(e) => setLoginData({...credentials, password: e.target.value})}
                                         placeholder="••••••••"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
                                     />

@@ -1,5 +1,5 @@
 // Importing the necessary decorators and classes from the NestJS framework
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsBoolean } from 'class-validator';
 
 // Exporting the class RegisterDto 
 export class RegisterDto {
@@ -10,6 +10,10 @@ export class RegisterDto {
     @IsEmail({}, { message: 'Please provide a valid email address' })
     @IsNotEmpty({ message: 'Email is required' })
     email: string;
+
+    @IsBoolean()
+    @IsNotEmpty({ message: 'You must accept the terms and conditions' })
+    terms: boolean;
 
     @IsString()
     @IsNotEmpty({ message: 'Password is required' })
