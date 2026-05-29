@@ -220,7 +220,7 @@ const Register = () => {
                 />
             )}
 
-            <div className="bg-slate-950 text-slate-100 antialiased flex flex-col justify-center relative overflow-hidden selection:bg-indigo-500/30 pt-28 pb-30">
+            <div className="bg-slate-950 text-slate-100 antialiased flex flex-col justify-center relative overflow-hidden selection:bg-indigo-500/30 pt-10 pb-30">
                 {/* Decorative Radial Background Light */}
 
                 <div className="sm:mx-auto sm:w-full sm:max-w-md px-4">

@@ -43,6 +43,15 @@ const Login = () => {
         });
     };
 
+    // Creating a function for setting the cookie 
+    const setCookie = (cookie: string) => {
+        // Setting the cookie, and making it globally. 
+        Cookies.set("todoAppToken", cookie, {
+            expires: 1,
+            path: "/"
+        })
+    }
+
     // Handle Form Submission
     const handleLogin = async (e: React.FormEvent) => {
         // Preventing the default behavior of the form submission
@@ -73,8 +82,92 @@ const Login = () => {
 
         // Else if the email and password input forms are filled, send the request to the backend server 
         else {
+            // Setting the loading state to true 
             setIsLoading(true);
-            // Stringifying the credentials
+
+            // Gettting the login data 
+            const loginData = JSON.stringify(credentials);
+
+            // Setting the backend login url 
+            const serverUrl: string = `${process.env.NEXT_PUBLIC_SERVER_URL}/home/login`;
+
+            // Using try catch block to send the request to the backend server 
+            try {
+                // Making the request to the backend server
+                const response = await fetch(serverUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: loginData
+                });
+
+                // if there was no response from the server 
+                if (!response.ok) {
+                    // Handle the server side error 
+                    const errorData = await response.json();
+
+                    // Display the error message 
+                    setAlert({
+                        show: true,
+                        message: errorData.message || "An error occurred during login. Please try again.",
+                        type: "error"
+                    });
+
+                    // Auto hide the alert after 6 seconds 
+                    setTimeout(() => setAlert({ show: false, message: "", type: "" }), 6000);
+
+                    // Setting the loading state to false                    
+                    setIsLoading(false);
+                    return;
+
+                }
+
+                // Else if the server returned a response, get the data from the response
+                else {
+                    // Convert the response data into a json object 
+                    const responseData = await response.json();
+
+                    // Setting the token in the cookies
+                    if (responseData.status === "success") {
+                        // Setting the cookie, and making it globally 
+                        setCookie(responseData.token);
+
+                        // Navigating to the dashboard page
+                        router.push("/dashboard");
+                    }
+
+                    // Else if the response data status was an error, execute 
+                    // the block of code below 
+                    else {
+                        // Display the error message 
+                        setAlert({
+                            show: true,
+                            message: responseData.message || "Invalid email or password. Please try again.",
+                            type: "error"
+                        });
+
+                        // Auto hide the alert after 6 seconds 
+                        setTimeout(() => setAlert({ show: false, message: "", type: "" }), 6000);
+
+                        // Setting the loading state to false                    
+                        setIsLoading(false);
+                    }
+                }
+            }
+
+            // Catch the error 
+            catch (error: any) {
+                // Setting the loading state to false 
+                setIsLoading(false);
+
+                // Displaying the alert box 
+                setAlert({
+                    show: true,
+                    message: error.response?.data?.message || "An error occurred during login. Please try again.",
+                    type: "error"
+                });
+            }
         }
     };
 

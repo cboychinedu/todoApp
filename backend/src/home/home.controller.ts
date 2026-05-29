@@ -1,8 +1,10 @@
+// Importing necessary modules and decorators
 import { Controller, Post, Body } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth/auth.service';
 
+// Defining the HomeController class and decorating it with @Controller to specify the route prefix
 @Controller('home')
 export class HomeController {
     // Inject the AuthService via the constructor 
